@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/JavaHad.iml" filepath="$PROJECT_DIR$/JavaHad.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PseudoHad.iml" filepath="$PROJECT_DIR$/PseudoHad.iml" />
     </modules>
   </component>
 </project>

@@ -1,7 +1,10 @@
 package pseudoraster;
 
+import io.vavr.Tuple2;
 import rasterdata.Raster;
+import rasterdata.VavrRaster;
 import snake.BodBarva;
+import snakeTelo.Jidlo;
 import transforms.Col;
 import transforms.Point2D;
 
@@ -30,14 +33,24 @@ public class PSRaster {
     }
 
 
-    public Raster toRaster(Raster raster, List<BodBarva> had){
+    public Raster toRaster(Raster raster, List<Tuple2<Point2D,Color>> had){
         Raster vysledek = raster;
-        for (BodBarva a: had) {
+        for (Tuple2<Point2D,Color> a: had) {
             vysledek = kosticka(vysledek,a);
         }
 
         return vysledek;
     }
+
+    public Raster toRaster(Raster raster, Jidlo jidlo){
+        Raster vysledek = raster;
+
+        vysledek = kosticka(vysledek,jidlo.getJidlo());
+
+
+        return vysledek;
+    }
+
 
 
 
@@ -55,7 +68,29 @@ public class PSRaster {
         return vysledek;
     }
 
+    public int getVelikostCtverecku() {
+        return velikostCtverecku;
+    }
 
+    public void setVelikostCtverecku(int velikostCtverecku) {
+        this.velikostCtverecku = velikostCtverecku;
+    }
+
+    public int getxPSRasteru() {
+        return xPSRasteru;
+    }
+
+    public void setxPSRasteru(int xPSRasteru) {
+        this.xPSRasteru = xPSRasteru;
+    }
+
+    public int getyPSRasteru() {
+        return yPSRasteru;
+    }
+
+    public void setyPSRasteru(int yPSRasteru) {
+        this.yPSRasteru = yPSRasteru;
+    }
 
     public int getVelikost() {
         return velikost;
@@ -100,10 +135,10 @@ public class PSRaster {
         return raster;
     }
 
-    private Raster kosticka(Raster raster, BodBarva a){
+    private Raster kosticka(Raster raster, Tuple2<Point2D,Color> a){
         for (int u = 0; u<velikostCtverecku;u++){
             for (int i = 0; i<velikostCtverecku;i++){
-                raster = raster.withValue((int)(a.getPoint2D().getX())*velikostCtverecku+i,(int)(a.getPoint2D().getY())*velikostCtverecku+u,a.getColor());
+                raster = raster.withValue((int)(a._1.getX())*velikostCtverecku+i,(int)(a._1.getY())*velikostCtverecku+u,a._2);
 
             }
         }

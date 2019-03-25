@@ -3,10 +3,17 @@
 
 
 
+import autoPlay.AutoPlay;
+import io.vavr.Tuple2;
 import pseudoraster.PSRaster;
 import rasterdata.*;
 import org.jetbrains.annotations.NotNull;
 import snake.BodBarva;
+import snakeTelo.GameOver;
+import snakeTelo.Had;
+import snakeTelo.Jidlo;
+import snakeTelo.TeloHada;
+import textMaker.TextMaker;
 import transforms.*;
 
 import java.awt.*;
@@ -44,18 +51,25 @@ public class Canvas implements  MouseListener,
 	private Color black = new Color(0,0,0);
 	private PSRaster psRaster;
 	private List<BodBarva> bod = new ArrayList<>();
+	private Had had;
+	private TeloHada teloHada;
+	private AutoPlay autoPlay;
+	private Point2D pohyb;
+	private GameOver gameOver;
+	private TextMaker textMaker;
 
 
 
 
 	public Canvas(final int width, final int height) {
 
-		psRaster = new PSRaster(25,width,height);
-
+		autoPlay = new AutoPlay();
+		psRaster = new PSRaster(50,width,height);
+		textMaker = new TextMaker();
 		frame = new JFrame();
 
 		frame.setLayout(new BorderLayout());
-		frame.setTitle("UHK FIM PGRF : " + this.getClass().getName());
+		frame.setTitle("Snake : " + this.getClass().getName());
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -76,6 +90,8 @@ public class Canvas implements  MouseListener,
 
 		raster = new VavrRaster<>(width,height,black);
 		presenter = new SlowPresenter<>(Color::getRGB);
+		raster = psRaster.orezRastr(raster);
+		raster = textMaker.textToText(raster,new Point2D(10,10),"Score:", Color.white,5);
 		pomraster=raster;
 
 //*/
@@ -97,25 +113,83 @@ public class Canvas implements  MouseListener,
 		frame.setVisible(true);
 		panel.requestFocus();
 		panel.requestFocusInWindow();
-		panel.addKeyListener(keyPressed());
+
+
+		had = new Had(psRaster.getxPSRasteru(),psRaster.getyPSRasteru());
+
+
+		teloHada = new TeloHada(psRaster);
+
+		raster = psRaster.toRaster(raster,teloHada.getJidlo());
+		raster = psRaster.toRaster(raster,had.getHadSeznam());
+
+
+		panel.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent o) {
+				raster=pomraster;
+				if (o.getKeyCode() == KeyEvent.VK_UP) {
+					pohyb = new Point2D(0,-1);
 
 
 
 
-		bod.add(new BodBarva(new Point2D(2,2),bila));
-		bod.add(new BodBarva(new Point2D(0,0),Color.red));
-		bod.add(new BodBarva(new Point2D(1,2),Color.blue));
+				}
 
-		raster = psRaster.toRaster(raster,bod);
-		draw();
+				if (o.getKeyCode() == KeyEvent.VK_DOWN) {
+					pohyb = new Point2D(0,1);
 
-		raster = raster.withValue(11,10,bila);
-		panel.repaint();
+
+
+				}
+
+				if (o.getKeyCode() == KeyEvent.VK_LEFT) {
+					pohyb = new Point2D(-1,0);
+
+
+
+				}
+
+				if (o.getKeyCode() == KeyEvent.VK_RIGHT) {
+					pohyb = new Point2D(1,0);
+
+
+				}
+
+				if (o.getKeyCode() == KeyEvent.VK_L) {
+
+
+
+				}
+
+				if (o.getKeyCode() == KeyEvent.VK_SPACE) {
+
+
+
+
+					pohyb=autoPlay.predikce(had,teloHada.getJidlo());
+
+					System.out.println("AutoPlay");
+				}
+
+				had.setHadSeznam(teloHada.zvetseni(had,pohyb));
+				raster = psRaster.toRaster(raster,teloHada.getJidlo());
+				raster = psRaster.toRaster(raster,had.getHadSeznam());
+				raster = textMaker.textToText(raster,new Point2D(130,10), Integer.toString(had.getHadSeznam().size()-5) , Color.white,5);
+
+				if(teloHada.kousnuti(had)){
+					System.err.println("Game over");
+					gameOver = new GameOver(width,height);
+					raster=gameOver.prohralJsi(raster,gameOver);
+				}
+
+				panel.repaint();
+
+			}
+		});
+
 	}
 
-	private KeyListener keyPressed() {
-		return null;
-	}
 
 	public void clear() {
 		Graphics gr = img.getGraphics();
@@ -153,36 +227,6 @@ public class Canvas implements  MouseListener,
 	}
 
 	public void keyPressed(KeyEvent o) {
-		if (o.getKeyCode() == KeyEvent.VK_UP) {
-
-
-			System.out.println("w");
-
-		}
-
-		if (o.getKeyCode() == KeyEvent.VK_DOWN) {
-
-
-			System.out.println("s");
-
-		}
-
-		if (o.getKeyCode() == KeyEvent.VK_LEFT) {
-
-			System.out.println("a");
-
-		}
-
-		if (o.getKeyCode() == KeyEvent.VK_RIGHT) {
-
-			System.out.println("d");
-		}
-
-		if (o.getKeyCode() == KeyEvent.VK_L) {
-
-			System.out.println("d");
-
-		}
 
 
 	}
